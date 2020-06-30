@@ -1,0 +1,73 @@
+
+# ---------------------------------------------------------------------------
+# "PeerOrgs" - Definition of organizations managing peer nodes
+# ---------------------------------------------------------------------------
+PeerOrgs:
+  # ---------------------------------------------------------------------------
+  # Org1
+  # ---------------------------------------------------------------------------
+  - Name: Org1
+    Domain: org1.example.com
+    EnableNodeOUs: true
+
+    Template:
+      Count: 1
+      # Start: 5
+      # Hostname: {{.Prefix}}{{.Index}} # default
+      SANS:
+        - "localhost"
+
+    Users:
+      Count: 1
+
+  # ---------------------------------------------------------------------------
+  # Org2
+  # ---------------------------------------------------------------------------
+  - Name: Org2
+    Domain: org2.example.com
+    EnableNodeOUs: true
+
+    Template:
+      Count: 1
+      # Start: 5
+      # Hostname: {{.Prefix}}{{.Index}} # default
+      SANS:
+        - "localhost"
+
+    Users:
+      Count: 1
+
+  # ---------------------------------------------------------------------------
+  # Org3
+  # ---------------------------------------------------------------------------
+
+  - Name: Org3
+    Domain: org3.example.com
+    EnableNodeOUs: true
+
+    Template:
+      Count: 1
+      # Start: 5
+      # Hostname: {{.Prefix}}{{.Index}} # default
+      SANS:
+        - "localhost"
+
+    Users:
+      Count: 1
+
+  # ---------------------------------------------------------------------------
+  # Org4
+  # ---------------------------------------------------------------------------
+  - Name: Org4
+    Domain: org4.example.com
+    EnableNodeOUs: true
+
+    Template:
+      Count: 1
+      # Start: 5
+      # Hostname: {{.Prefix}}{{.Index}} # default
+      SANS:
+        - "localhost"
+
+    Users:
+      Count: 1
