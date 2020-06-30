@@ -243,6 +243,6 @@ deployCC(){
 #queryInstalled
 #approveOrgs
 #checkCommitReadyness
-#commitChaincodeDefinition
-queryCommitted
+commitChaincodeDefinition
+#queryCommitted
 #chaincodeInvokeInit
