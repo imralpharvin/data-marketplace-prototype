@@ -36,38 +36,3 @@ PeerOrgs:
 
     Users:
       Count: 1
-
-  # ---------------------------------------------------------------------------
-  # Org3
-  # ---------------------------------------------------------------------------
-
-  - Name: Org3
-    Domain: org3.example.com
-    EnableNodeOUs: true
-
-    Template:
-      Count: 1
-      # Start: 5
-      # Hostname: {{.Prefix}}{{.Index}} # default
-      SANS:
-        - "localhost"
-
-    Users:
-      Count: 1
-
-  # ---------------------------------------------------------------------------
-  # Org4
-  # ---------------------------------------------------------------------------
-  - Name: Org4
-    Domain: org4.example.com
-    EnableNodeOUs: true
-
-    Template:
-      Count: 1
-      # Start: 5
-      # Hostname: {{.Prefix}}{{.Index}} # default
-      SANS:
-        - "localhost"
-
-    Users:
-      Count: 1
