@@ -303,6 +303,20 @@ Channel: &ChannelDefaults
 ################################################################################
 Profiles:
 
+    OrdererGenesis:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererOrg
+            Capabilities:
+                <<: *OrdererCapabilities
+        Consortiums:
+            SampleConsortium:
+                Organizations:
+                    - *Org1
+                    - *Org2
+
     BasicChannel:
         Consortium: SampleConsortium
         <<: *ChannelDefaults
@@ -313,28 +327,3 @@ Profiles:
                 - *Org2
             Capabilities:
                 <<: *ApplicationCapabilities
-
-    OrdererGenesis:
-        <<: *ChannelDefaults
-        Capabilities:
-            <<: *ChannelCapabilities
-        Orderer:
-            <<: *OrdererDefaults
-            OrdererType: etcdraft
-            EtcdRaft:
-                Consenters:
-                - Host: orderer.example.com
-                  Port: 7050
-                  ClientTLSCert: ../artifacts/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
-                  ServerTLSCert: ../artifacts/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
-            Addresses:
-                - orderer.example.com:7050
-            Organizations:
-            - *OrdererOrg
-            Capabilities:
-                <<: *OrdererCapabilities
-        Consortiums:
-            SampleConsortium:
-                Organizations:
-                - *Org1
-                - *Org2

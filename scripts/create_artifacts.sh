@@ -1,11 +1,7 @@
 # Create artifacts for orderer
-echo "#######    Creating artifacts for orderer node  ##########"
-cryptogen generate --config=../config/crypto-config-orderer.yaml --output=../artifacts/
-echo "===================== Created artifacts for orderer node ====================="
-# Create artifacts for organizations
-echo "#######    Creating artifacts for organizations and peer nodes ##########"
-cryptogen generate --config=../config/crypto-config-orgs.yaml --output=../artifacts/
-echo "================== Created artifacts for organizations and peer nodes =================="
+echo "#######    Creating artifacts for orderer and peer nodes  ##########"
+cryptogen generate --config=../config/crypto-config.yaml --output=../artifacts/
+echo "===================== Created artifacts for orderer and peer nodes ====================="
 
 # Generate System Genesis block
 echo "#######    Generating system genesis block  ##########"
