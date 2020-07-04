@@ -1,28 +1,29 @@
 pushd ..
 export CORE_PEER_TLS_ENABLED=true
-export ORDERER_CA=${PWD}/artifacts/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
-export PEER0_ORG1_CA=${PWD}/artifacts/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
-export PEER0_ORG2_CA=${PWD}/artifacts/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
-export FABRIC_CFG_PATH=${PWD}/config
+export ORDERER_CA=${PWD}/network/channel/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+export PEER0_ORG1_CA=${PWD}/network/channel/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+export PEER0_ORG2_CA=${PWD}/network/channel/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+export FABRIC_CFG_PATH=${PWD}/network/channel/config
 export CHANNEL_NAME=mychannel
+export PRIVATE_DATA_CONFIG=${PWD}/network/private-data/collections_config.json
 
 setOrdererGlobals() {
   export CORE_PEER_LOCALMSPID="OrdererMSP"
-  export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/artifacts/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
-  export CORE_PEER_MSPCONFIGPATH=${PWD}/artifacts/ordererOrganizations/example.com/users/Admin@example.com/msp
+  export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/network/channel/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+  export CORE_PEER_MSPCONFIGPATH=${PWD}/network/channel/crypto-config/ordererOrganizations/example.com/users/Admin@example.com/msp
 }
 
 setGlobalsForPeer0Org1(){
     export CORE_PEER_LOCALMSPID="Org1MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG1_CA
-    export CORE_PEER_MSPCONFIGPATH=${PWD}/artifacts/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+    export CORE_PEER_MSPCONFIGPATH=${PWD}/network/channel/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
     export CORE_PEER_ADDRESS=localhost:7051
 }
 
 setGlobalsForPeer0Org2(){
     export CORE_PEER_LOCALMSPID="Org2MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG2_CA
-    export CORE_PEER_MSPCONFIGPATH=${PWD}/artifacts/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
+    export CORE_PEER_MSPCONFIGPATH=${PWD}/network/channel/crypto-config/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
     export CORE_PEER_ADDRESS=localhost:9051
 }
 
@@ -78,56 +79,74 @@ queryInstalled() {
 #queryInstalled
 
 
-approveOrgs() {
+approveForMyOrg1() {
     setGlobalsForPeer0Org1
+    # set -x
     peer lifecycle chaincode approveformyorg -o localhost:7050 \
         --ordererTLSHostnameOverride orderer.example.com --tls \
+        --collections-config $PRIVATE_DATA_CONFIG \
         --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name ${CC_NAME} --version ${VERSION} \
         --init-required --package-id ${PACKAGE_ID} \
         --sequence ${VERSION}
+    # set +x
 
     echo "===================== chaincode approved from org 1 ===================== "
 
-    setGlobalsForPeer0Org2
-    peer lifecycle chaincode approveformyorg -o localhost:7050 \
-        --ordererTLSHostnameOverride orderer.example.com --tls \
-        --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name ${CC_NAME} --version ${VERSION} \
-        --init-required --package-id ${PACKAGE_ID} \
-        --sequence ${VERSION}
-
-    echo "===================== chaincode approved from org 2 ===================== "
-
-
-  #  peer lifecycle chaincode approveformyorg -o localhost:7050 \
-  #      --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name fabcar --version 1.0 \
-  #      --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
-
 }
-#approveOrgs
+
+#approveForMyOrg1
+
+# --signature-policy "OR ('Org1MSP.member')"
+# --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA
+# --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $PEER0_ORG1_CA --peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles $PEER0_ORG2_CA
+#--channel-config-policy Channel/Application/Admins
+# --signature-policy "OR ('Org1MSP.peer','Org2MSP.peer')"
 
 checkCommitReadyness() {
     setGlobalsForPeer0Org1
+    peer lifecycle chaincode checkcommitreadiness \
+        --collections-config $PRIVATE_DATA_CONFIG \
+        --channelID $CHANNEL_NAME --name ${CC_NAME} --version ${VERSION} \
+        --sequence ${VERSION} --output json --init-required
+    echo "===================== checking commit readyness from org 1 ===================== "
+}
+
+ #checkCommitReadyness
+
+# --collections-config ./artifacts/private-data/collections_config.json \
+# --signature-policy "OR('Org1MSP.member','Org2MSP.member')" \
+approveForMyOrg2() {
+    setGlobalsForPeer0Org2
+
+    peer lifecycle chaincode approveformyorg -o localhost:7050 \
+        --ordererTLSHostnameOverride orderer.example.com --tls $CORE_PEER_TLS_ENABLED \
+        --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name ${CC_NAME} \
+        --collections-config $PRIVATE_DATA_CONFIG \
+        --version ${VERSION} --init-required --package-id ${PACKAGE_ID} \
+        --sequence ${VERSION}
+
+    echo "===================== chaincode approved from org 2 ===================== "
+}
+
+# approveForMyOrg2
+
+checkCommitReadyness() {
+
+    setGlobalsForPeer0Org1
     peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME \
         --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
+        --collections-config $PRIVATE_DATA_CONFIG \
         --name ${CC_NAME} --version ${VERSION} --sequence ${VERSION} --output json --init-required
     echo "===================== checking commit readyness from org 1 ===================== "
-
-    setGlobalsForPeer0Org2
-    peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME \
-        --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA \
-        --name ${CC_NAME} --version ${VERSION} --sequence ${VERSION} --output json --init-required
-    echo "===================== checking commit readyness from org 2 ===================== "
-
-    #peer lifecycle chaincode checkcommitreadiness --channelID mychannel \
-    #--name fabcar --version 1.0 --sequence 1 --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem --output json
-
 }
+#approveOrgs
 
 commitChaincodeDefinition() {
     setGlobalsForPeer0Org1
     peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com \
         --tls --cafile $ORDERER_CA \
         --channelID $CHANNEL_NAME --name ${CC_NAME} \
+        --collections-config $PRIVATE_DATA_CONFIG \
         --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
         --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA \
         --version ${VERSION} --sequence ${VERSION} --init-required
@@ -167,7 +186,9 @@ deployCC(){
   packageChaincode
   installChaincode
   queryInstalled
-  approveOrgs
+  approveForMyOrg1
+  checkCommitReadyness
+  approveForMyOrg2
   checkCommitReadyness
   commitChaincodeDefinition
   #queryCommitted
