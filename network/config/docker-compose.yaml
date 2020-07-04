@@ -36,9 +36,9 @@ services:
     networks:
       - test
     volumes:
-      - ./channel/genesis.block:/var/hyperledger/orderer/genesis.block
-      - ./channel/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/msp:/var/hyperledger/orderer/msp
-      - ./channel/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls:/var/hyperledger/orderer/tls
+      - ../artifacts/genesis.block:/var/hyperledger/orderer/genesis.block
+      - ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp:/var/hyperledger/orderer/msp
+      - ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls:/var/hyperledger/orderer/tls
 
   couchdb0:
     container_name: couchdb0
@@ -72,7 +72,7 @@ services:
       - ORDERER_GENERAL_LOGLEVEL=DEBUG
       - CORE_PEER_LOCALMSPID=Org1MSP
 
-      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=artifacts_test
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=config_test
 
       - CORE_PEER_ID=peer0.org1.example.com
       - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
@@ -99,10 +99,10 @@ services:
     ports:
       - 7051:7051
     volumes:
-      - ./channel/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp:/etc/hyperledger/crypto/peer/msp
-      - ./channel/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls:/etc/hyperledger/crypto/peer/tls
+      - ../organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp:/etc/hyperledger/crypto/peer/msp
+      - ../organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls:/etc/hyperledger/crypto/peer/tls
       - /var/run/:/host/var/run/
-      - ./channel/:/etc/hyperledger/channel/
+    #  - ../channel/:/etc/hyperledger/channel/
     networks:
       - test
 
@@ -116,7 +116,7 @@ services:
       - ORDERER_GENERAL_LOGLEVEL=debug
       - CORE_PEER_LOCALMSPID=Org2MSP
 
-      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=artifacts_test
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=config_test
 
       - CORE_PEER_ID=peer0.org2.example.com
       - CORE_PEER_ADDRESS=peer0.org2.example.com:9051
@@ -140,9 +140,9 @@ services:
     ports:
       - 9051:9051
     volumes:
-      - ./channel/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp:/etc/hyperledger/crypto/peer/msp
-      - ./channel/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls:/etc/hyperledger/crypto/peer/tls
+      - ../organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp:/etc/hyperledger/crypto/peer/msp
+      - ../organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls:/etc/hyperledger/crypto/peer/tls
       - /var/run/:/host/var/run/
-      - ./channel/:/etc/hyperledger/channel/
+      #- ../channel/:/etc/hyperledger/channel/
     networks:
       - test
