@@ -43,6 +43,34 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 	return nil
 }
 
+func (s *SmartContract) CreateDataHash(ctx contractapi.TransactionContextInterface, datahashNumber string, account string, hash string) error {
+	datahash := DataHash{
+		Account:   account,
+		Hash:  hash,
+	}
+
+	datahashAsBytes, _ := json.Marshal(datahash)
+
+	return ctx.GetStub().PutState(datahashNumber, datahashAsBytes)
+}
+
+func (s *SmartContract) QueryDataHash(ctx contractapi.TransactionContextInterface, datahashNumber string) (*DataHash, error) {
+	datahashAsBytes, err := ctx.GetStub().GetState(datahashNumber)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read from world state. %s", err.Error())
+	}
+
+	if datahashAsBytes == nil {
+		return nil, fmt.Errorf("%s does not exist", datahashNumber)
+	}
+
+	datahash := new(DataHash)
+	_ = json.Unmarshal(datahashAsBytes, datahash)
+
+	return datahash, nil
+}
+
 func (s *SmartContract) QueryAllDataHashes(ctx contractapi.TransactionContextInterface) ([]QueryResult, error) {
 	startKey := ""
 	endKey := ""
@@ -72,6 +100,21 @@ func (s *SmartContract) QueryAllDataHashes(ctx contractapi.TransactionContextInt
 
 	return results, nil
 }
+
+func (s *SmartContract) ChangeDataHashAccount(ctx contractapi.TransactionContextInterface, datahashNumber string, newAccount string) error {
+	datahash, err := s.QueryDataHash(ctx, datahashNumber)
+
+	if err != nil {
+		return err
+	}
+
+	datahash.Account = newAccount
+
+	datahashAsBytes, _ := json.Marshal(datahash)
+
+	return ctx.GetStub().PutState(datahashNumber, datahashAsBytes)
+}
+
 
 func main() {
 

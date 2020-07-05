@@ -8,6 +8,6 @@ sleep 3
 sleep 3
 ./create_channel.sh
 sleep 3
-./deploy_chaincode.sh
+./deploy_chaincode3.sh
 
 popd

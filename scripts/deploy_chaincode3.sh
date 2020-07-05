@@ -80,25 +80,18 @@ queryInstalled() {
 
 approveForMyOrg1() {
     setGlobalsForPeer0Org1
-    # set -x
+
     peer lifecycle chaincode approveformyorg -o localhost:7050 \
         --ordererTLSHostnameOverride orderer.example.com --tls \
         --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name ${CC_NAME} --version ${VERSION} \
         --init-required --package-id ${PACKAGE_ID} \
         --sequence ${VERSION}
-    # set +x
 
     echo "===================== chaincode approved from org 1 ===================== "
 
 }
 
 #approveForMyOrg1
-
-# --signature-policy "OR ('Org1MSP.member')"
-# --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA
-# --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $PEER0_ORG1_CA --peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles $PEER0_ORG2_CA
-#--channel-config-policy Channel/Application/Admins
-# --signature-policy "OR ('Org1MSP.peer','Org2MSP.peer')"
 
 checkCommitReadyness() {
     setGlobalsForPeer0Org1
@@ -110,8 +103,6 @@ checkCommitReadyness() {
 
  #checkCommitReadyness
 
-# --collections-config ./artifacts/private-data/collections_config.json \
-# --signature-policy "OR('Org1MSP.member','Org2MSP.member')" \
 approveForMyOrg2() {
     setGlobalsForPeer0Org2
 
@@ -145,14 +136,6 @@ commitChaincodeDefinition() {
         --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA \
         --version ${VERSION} --sequence ${VERSION} --init-required
     echo "===================== Chaincode definition committed ===================== "
-
-#    peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com \
-#    --channelID mychannel --name fabcar \
-#    --version 1.0 --sequence 1 --tls \
-#     --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem \
-#      --peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt \
-#      --peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
-
 }
 
 queryCommitted() {
@@ -169,32 +152,14 @@ chaincodeInvokeInit() {
       -C $CHANNEL_NAME -n ${CC_NAME} \
       --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
       --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA \
-      --isInit -c '{"function":"initLedger","Args":[]}'
+      --isInit -c '{"function":"InitLedger","Args":[]}'
+
+  echo "===================== Ledger Initiated ===================== "
 
 }
 
-chaincodeInvoke() {
-    # setGlobalsForPeer0Org1
-    # peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com \
-    # --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} \
-    # --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
-    # --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA  \
-    # -c '{"function":"initLedger","Args":[]}'
-
+chaincodeInvokeCreate() {
     setGlobalsForPeer0Org1
-
-    ## Create Car
-    # peer chaincode invoke -o localhost:7050 \
-    #     --ordererTLSHostnameOverride orderer.example.com \
-    #     --tls $CORE_PEER_TLS_ENABLED \
-    #     --cafile $ORDERER_CA \
-    #     -C $CHANNEL_NAME -n ${CC_NAME}  \
-    #     --peerAddresses localhost:7051 \
-    #     --tlsRootCertFiles $PEER0_ORG1_CA \
-    #     --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA   \
-    #     -c '{"function": "createCar","Args":["Car-ABCDEEE", "Audi", "R8", "Red", "Pavan"]}'
-
-    ## Init ledger
     peer chaincode invoke -o localhost:7050 \
         --ordererTLSHostnameOverride orderer.example.com \
         --tls $CORE_PEER_TLS_ENABLED \
@@ -202,25 +167,42 @@ chaincodeInvoke() {
         -C $CHANNEL_NAME -n ${CC_NAME} \
         --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
         --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA \
-        -c '{"function": "initLedger","Args":[]}'
+        -c '{"function": "CreateDataHash","Args":["DATAHASH5", "Amy", "excel.sheet"]}'
+
+    echo "===================== Added new datahash ===================== "
+
+}
+
+chaincodeInvokeChangeAccount() {
+    setGlobalsForPeer0Org1
+    peer chaincode invoke -o localhost:7050 \
+        --ordererTLSHostnameOverride orderer.example.com \
+        --tls $CORE_PEER_TLS_ENABLED \
+        --cafile $ORDERER_CA \
+        -C $CHANNEL_NAME -n ${CC_NAME} \
+        --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
+        --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA \
+        -c '{"function": "ChangeDataHashAccount","Args":["DATAHASH5", "Aaron"]}'
+
+    echo "===================== Added new datahash ===================== "
 
 }
 
 # chaincodeInvoke
 
-chaincodeQuery() {
+chaincodeQueryAllDataHashes() {
     setGlobalsForPeer0Org2
-
-    # Query all cars
-    # peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"Args":["queryAllCars"]}'
-
-    # Query Car by Id
     peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"Args":["QueryAllDataHashes"]}'
-    #'{"Args":["GetSampleData","Key1"]}'
+    echo "===================== Queried All Datahashes ===================== "
 
-    # Query Private Car by Id
-    # peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"function": "readPrivateCar","Args":["1111"]}'
-    # peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"function": "readCarPrivateDetails","Args":["1111"]}'
+}
+
+chaincodeQueryDataHash() {
+    setGlobalsForPeer0Org2
+    peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"Args":["QueryDataHash","DATAHASH5"]}'
+    echo "===================== Query a car ===================== "
+
+
 }
 
 deployCC(){
@@ -236,9 +218,17 @@ deployCC(){
   queryCommitted
   chaincodeInvokeInit
   sleep 5
-  chaincodeInvoke
+  chaincodeQueryAllDataHashes
   sleep 3
-  chaincodeQuery
+  chaincodeInvokeCreate
+  sleep 3
+  chaincodeQueryAllDataHashes
+  sleep 3
+  chaincodeInvokeChangeAccount
+  sleep 3
+  chaincodeQueryDataHash
+  sleep 3
+  chaincodeQueryAllDataHashes
 }
 
 deployCC
