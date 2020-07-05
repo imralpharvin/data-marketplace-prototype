@@ -23,6 +23,11 @@ rm chaincode/fabcar2/fabcar2.tar.gz
 rm chaincode/fabcar2/log.txt
 rm -rf ./chaincode/fabcar2/vendor
 
+#Remove data-marketplace components
+rm chaincode/data-marketplace/data-marketplace.tar.gz
+rm chaincode/data-marketplace/log.txt
+rm -rf ./chaincode/data-marketplace/vendor
+
 removeUnwantedImages() {
   DOCKER_IMAGE_IDS=$(docker images | awk '($1 ~ /dev-peer.*/) {print $3}')
   if [ -z "$DOCKER_IMAGE_IDS" -o "$DOCKER_IMAGE_IDS" == " " ]; then
