@@ -152,7 +152,7 @@ chaincodeInvokeInit() {
       -C $CHANNEL_NAME -n ${CC_NAME} \
       --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
       --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA \
-      --isInit -c '{"function":"InitLedger","Args":[]}'
+      --isInit -c '{"function":"InitAccountLedger","Args":[]}'
 
   echo "===================== Ledger Initiated ===================== "
 
@@ -190,9 +190,9 @@ chaincodeInvokeChangeAccount() {
 
 # chaincodeInvoke
 
-chaincodeQueryAllDataHashes() {
+chaincodeQueryAllAccounts() {
     setGlobalsForPeer0Org2
-    peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"Args":["QueryAllDataHashes"]}'
+    peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"Args":["QueryAllAccounts"]}'
     echo "===================== Queried All Datahashes ===================== "
 
 }
@@ -218,17 +218,17 @@ deployCC(){
   queryCommitted
   chaincodeInvokeInit
   sleep 5
-  chaincodeQueryAllDataHashes
-  sleep 3
-  chaincodeInvokeCreate
-  sleep 3
-  chaincodeQueryAllDataHashes
-  sleep 3
-  chaincodeInvokeChangeAccount
-  sleep 3
-  chaincodeQueryDataHash
-  sleep 3
-  chaincodeQueryAllDataHashes
+  #chaincodeQueryAllDataHashes
+  #sleep 3
+  #chaincodeInvokeCreate
+  #sleep 3
+  #chaincodeQueryAllAccounts
+#  sleep 3
+  #chaincodeInvokeChangeAccount
+  #sleep 3
+#  chaincodeQueryDataHash
+  #sleep 3
+#  chaincodeQueryAllDataHashes
 }
 
 deployCC
@@ -242,7 +242,16 @@ deployCC
 #queryCommitted
 #chaincodeInvokeInit
 #sleep 5
-#chaincodeInvoke
+##chaincodeQueryAllDataHashes
 #sleep 3
-#chaincodeQuery
+#chaincodeInvokeCreate
+#sleep 3
+#chaincodeQueryAllDataHashes
+#sleep 3
+#chaincodeInvokeChangeAccount
+#sleep 3
+#chaincodeQueryDataHash
+#sleep 3
+#chaincodeQueryAllDataHashes
+
 popd

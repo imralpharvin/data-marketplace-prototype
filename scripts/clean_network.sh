@@ -12,7 +12,7 @@ pushd ..
 
 rm -rf network/organizations/*
 rm network/artifacts/genesis.block network/channel/mychannel.tx network/channel/mychannel.block
-rm network/artifacts/Org1MSPanchors.tx network/channel/Org2MSPanchors.tx
+rm network/channel/Org1MSPanchors.tx network/channel/Org2MSPanchors.tx
 #Remove fabcar 1 components
 rm chaincode/fabcar/fabcar.tar.gz
 rm chaincode/fabcar/log.txt
