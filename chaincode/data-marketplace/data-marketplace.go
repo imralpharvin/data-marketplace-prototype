@@ -6,22 +6,21 @@ import (
 	"strconv"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+	"github.com/imralpharvin/data-marketplace-prototype/chaincode/data-marketplace/resources"
 )
 
-//Account Contract Api
-type SmartContract struct {
+type DataMarketplaceContract struct {
 	contractapi.Contract
 }
 
-//Account Struct
-type Account struct {
-	Name 					string 	`json:"name"`
-	Organization 	string 	`json:"organization"`
-	Balance			 	int 		`json:"balance"`
-	Username			string 	`json:"username"`
-	Password			string 	`json:"password"`
+//Account Query Result
+type AccountQueryResult struct {
+	Key    string `json:"Key"`
+	Record *Account
 }
+//Accoun Struct
 
+/*
 type DataHash struct {
 	Hash  			string `json:"hash"`
 	Description string `json:"description"`
@@ -31,11 +30,7 @@ type DataHash struct {
 	Price 			int `json:"price"`
 }
 
-//Account Query Result
-type AccountQueryResult struct {
-	Key    string `json:"Key"`
-	Record *Account
-}
+
 
 //DataHash Struct
 
@@ -44,14 +39,14 @@ type AccountQueryResult struct {
 type DataHashQueryResult struct {
 	Key    string `json:"Key"`
 	Record *DataHash
-}
+}*/
 
-func (s *SmartContract) InitAccountLedger(ctx contractapi.TransactionContextInterface) error{
+func (s *DataMarketplaceContract) InitAccountLedger(ctx contractapi.TransactionContextInterface) error{
 	accounts := []Account{
-		Account{Name: "Ralph", Organization: "Org1", Balance: 1000, Username: "ralphdc", Password: "pass"},
-		Account{Name: "John", Organization: "Org2", Balance: 10020, Username: "johnd", Password: "pass"},
-		Account{Name: "Amy", Organization: "Org1", Balance: 10200, Username: "amyc", Password: "pass"},
-		Account{Name: "Ben", Organization: "Org2", Balance: 100, Username: "benm", Password: "pass"},
+		Account{Name: "Ralph", Organization: "Org1", Balance: 1000},
+		Account{Name: "John", Organization: "Org2", Balance: 10020},
+		Account{Name: "Amy", Organization: "Org1", Balance: 10200},
+		Account{Name: "Ben", Organization: "Org2", Balance: 100},
 	}
 
 	for i, account := range accounts {
@@ -63,26 +58,12 @@ func (s *SmartContract) InitAccountLedger(ctx contractapi.TransactionContextInte
 		}
 	}
 
-	datahashes := []DataHash{
-		DataHash{Hash: "r3f4wdswfs", Description: "Film", Keyword: "Avengers", Account: "ACCOUNT1", DataForSale: true, Price: 20 },
-		DataHash{Hash: "r323f4wfs", Description: "Text App", Keyword: "Android", Account: "ACCOUNT2", DataForSale: true, Price: 10 },
-		DataHash{Hash: "2r3f4wfs", Description: "Song", Keyword: "Happy.mp3", Account: "ACCOUNT3", DataForSale: true, Price: 2 },
-		DataHash{Hash: "rrrr3f4wfs", Description: "Chicken", Keyword: "Food", Account: "ACCOUNT4", DataForSale: false, Price: 15 },
-	}
-
-	for i, datahash := range datahashes {
-		datahashAsBytes, _ := json.Marshal(datahash)
-		err := ctx.GetStub().PutState("DATAHASH"+strconv.Itoa(i), datahashAsBytes)
-
-		if err != nil {
-			return fmt.Errorf("Failed to put to world state. %s", err.Error())
-		}
-	}
-
 	return nil
 }
 
-func (s *SmartContract) QueryAllAccounts(ctx contractapi.TransactionContextInterface) ([]AccountQueryResult, error) {
+/*func (s *DataMarketplaceContract) register(ctx contractapi.TransactionContextInterface)*/
+
+func (s *DataMarketplaceContract) QueryAllAccounts(ctx contractapi.TransactionContextInterface) ([]AccountQueryResult, error) {
 	startKey := ""
 	endKey := ""
 
@@ -209,14 +190,14 @@ func (s *DataHashContract) ChangeDataHashAccount(ctx dhc.TransactionContextInter
 
 func main() {
 
-	chaincode, err := contractapi.NewChaincode(new(SmartContract))
+	chaincode, err := contractapi.NewChaincode(new(DataMarketplaceContract))
 
 	if err != nil {
-		fmt.Printf("Error create fabcar chaincode: %s", err.Error())
+		fmt.Printf("Error create data marketplace chaincode: %s", err.Error())
 		return
 	}
 
 	if err := chaincode.Start(); err != nil {
-		fmt.Printf("Error starting fabcar chaincode: %s", err.Error())
+		fmt.Printf("Error starting data marketplace chaincode: %s", err.Error())
 	}
 }

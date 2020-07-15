@@ -7,7 +7,7 @@ services:
 
   orderer.example.com:
     container_name: orderer.example.com
-    image: hyperledger/fabric-orderer:2.1
+    image: hyperledger/fabric-orderer
     dns_search: .
     environment:
       - ORDERER_GENERAL_LOGLEVEL=info
