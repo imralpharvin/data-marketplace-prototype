@@ -3,201 +3,143 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
 
-	"github.com/hyperledger/fabric-contract-api-go/contractapi"
-	"github.com/imralpharvin/data-marketplace-prototype/chaincode/data-marketplace/resources"
+	"github.com/hyperledger/fabric-chaincode-go/shim"
+	sc "github.com/hyperledger/fabric-protos-go/peer"
+
 )
 
 type DataMarketplaceContract struct {
-	contractapi.Contract
 }
 
-//Account Query Result
-type AccountQueryResult struct {
-	Key    string `json:"Key"`
-	Record *Account
-}
-//Accoun Struct
-
-/*
-type DataHash struct {
-	Hash  			string `json:"hash"`
-	Description string `json:"description"`
-	Keyword 		string `json:"keyword"`
-	Account 		string `json:"account"`
-	DataForSale bool `json:"dataforsale"`
-	Price 			int `json:"price"`
+func (s *DataMarketplaceContract) Init(APIstub shim.ChaincodeStubInterface) sc.Response {
+	return shim.Success(nil)
 }
 
+func (s *DataMarketplaceContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response {
+	function, args := APIstub.GetFunctionAndParameters()
 
-
-//DataHash Struct
-
-
-//DataHash Query Result
-type DataHashQueryResult struct {
-	Key    string `json:"Key"`
-	Record *DataHash
-}*/
-
-func (s *DataMarketplaceContract) InitAccountLedger(ctx contractapi.TransactionContextInterface) error{
-	accounts := []Account{
-		Account{Name: "Ralph", Organization: "Org1", Balance: 1000},
-		Account{Name: "John", Organization: "Org2", Balance: 10020},
-		Account{Name: "Amy", Organization: "Org1", Balance: 10200},
-		Account{Name: "Ben", Organization: "Org2", Balance: 100},
+	switch function {
+	case "CreateAccount":
+		return s.CreateAccount(APIstub, args)
+	case "QueryAccount":
+		return s.QueryAccount(APIstub, args)
+	case "CreateDataHash":
+		return s.CreateDataHash(APIstub, args)
+	case "QueryDataHashesByOwner":
+		return s.QueryDataHashesByOwner(APIstub, args)
+	case "QueryDataHashesByForSale":
+		return s.QueryDataHashesByForSale(APIstub, args)
+	case "UpdateDataHashForSale":
+		return s.UpdateDataHashForSale(APIstub, args)
+	case "QueryTransactionsByHash":
+		return s.QueryTransactionsByHash(APIstub, args)
+	case "QueryTransactionsBySeller":
+		return s.QueryTransactionsBySeller(APIstub, args)
+	case "QueryTransactionsByBuyer":
+		return s.QueryTransactionsByBuyer(APIstub, args)
+	case "BuyDataHash":
+		return s.BuyDataHash(APIstub, args)
+	default:
+		return shim.Error("Invalid Smart Contract function name.")
 	}
-
-	for i, account := range accounts {
-		accountAsBytes, _ := json.Marshal(account)
-		err := ctx.GetStub().PutState("ACCOUNT"+strconv.Itoa(i), accountAsBytes)
-
-		if err != nil {
-			return fmt.Errorf("Failed to put to world state. %s", err.Error())
-		}
-	}
-
-	return nil
 }
 
-/*func (s *DataMarketplaceContract) register(ctx contractapi.TransactionContextInterface)*/
+func (s *DataMarketplaceContract) CreateAccount(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+	return PutAccount(APIstub, args)
+}
 
-func (s *DataMarketplaceContract) QueryAllAccounts(ctx contractapi.TransactionContextInterface) ([]AccountQueryResult, error) {
-	startKey := ""
-	endKey := ""
+func (s *DataMarketplaceContract) QueryAccount(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+	return GetAccount(APIstub, args)
+}
 
-	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
+func (s *DataMarketplaceContract) CreateDataHash(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+	return PutDataHash(APIstub ,args)
+}
 
+func (s *DataMarketplaceContract) QueryDataHashesByOwner(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+	return GetDataHashesByOwner(APIstub, args)
+}
+
+func (s *DataMarketplaceContract) QueryDataHashesByForSale(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+	return GetDataHashesByForSale(APIstub, args)
+}
+
+func (s *DataMarketplaceContract) UpdateDataHashForSale(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+	return ChangeDataHashForSale(APIstub, args)
+}
+
+func (s *DataMarketplaceContract) QueryTransactionsByHash(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+	return GetTransactionsByHash(APIstub, args)
+}
+
+func (s *DataMarketplaceContract) QueryTransactionsBySeller(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+	return GetTransactionsBySeller(APIstub, args)
+}
+
+func (s *DataMarketplaceContract) QueryTransactionsByBuyer(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+	return GetTransactionsByBuyer(APIstub, args)
+}
+
+func (s *DataMarketplaceContract) BuyDataHash(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+	hashAsBytes, err := APIstub.GetState(args[0])
 	if err != nil {
-		return nil, err
-	}
-	defer resultsIterator.Close()
-
-	results := []AccountQueryResult{}
-
-	for resultsIterator.HasNext() {
-		queryResponse, err := resultsIterator.Next()
-
-		if err != nil {
-			return nil, err
-		}
-
-		account := new(Account)
-		_ = json.Unmarshal(queryResponse.Value, account)
-
-		queryResult := AccountQueryResult{Key: queryResponse.Key, Record: account}
-		results = append(results, queryResult)
+		return shim.Error("Failed to get hash:" + err.Error())
+	} else if hashAsBytes == nil {
+		return shim.Error("Hash does not exist")
 	}
 
-	return results, nil
-}
-
-/*
-func (s *DataHashContract) InitLedger(ctx dhc.TransactionContextInterface) error{
-	datahashes := []DataHash{
-		DataHash{Account: "Ralph", Hash: "file.txt"},
-		DataHash{Account: "John", Hash: "money.dollar"},
-		DataHash{Account: "Mary", Hash: "song.mp3"},
-		DataHash{Account: "Emily", Hash: "google.doc"},
-	}
-
-	for i, datahash := range datahashes {
-		datahashAsBytes, _ := json.Marshal(datahash)
-		err := ctx.GetStub().PutState("DATAHASH"+strconv.Itoa(i), datahashAsBytes)
-
-		if err != nil {
-			return fmt.Errorf("Failed to put to world state. %s", err.Error())
-		}
-	}
-
-	return nil
-}
-
-func (s *DataHashContract) CreateDataHash(ctx dhc.TransactionContextInterface, datahashNumber string, account string, hash string) error {
-	datahash := DataHash{
-		Account:   account,
-		Hash:  hash,
-	}
-
-	datahashAsBytes, _ := json.Marshal(datahash)
-
-	return ctx.GetStub().PutState(datahashNumber, datahashAsBytes)
-}
-
-func (s *DataHashContract) QueryDataHash(ctx dhc.TransactionContextInterface, datahashNumber string) (*DataHash, error) {
-	datahashAsBytes, err := ctx.GetStub().GetState(datahashNumber)
-
+	hash := DataHash{}
+	err = json.Unmarshal(hashAsBytes, &hash)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to read from world state. %s", err.Error())
+		return shim.Error(err.Error())
 	}
 
-	if datahashAsBytes == nil {
-		return nil, fmt.Errorf("%s does not exist", datahashNumber)
-	}
-
-	datahash := new(DataHash)
-	_ = json.Unmarshal(datahashAsBytes, datahash)
-
-	return datahash, nil
-}*/
-/*
-func (s *DataHashContract) QueryAllDataHashes(ctx dhc.TransactionContextInterface) ([]DataHashQueryResult, error) {
-	startKey := ""
-	endKey := ""
-
-	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
-
+	sellerAsBytes, err := APIstub.GetState(args[1])
 	if err != nil {
-		return nil, err
-	}
-	defer resultsIterator.Close()
-
-	results := []DataHashQueryResult{}
-
-	for resultsIterator.HasNext() {
-		queryResponse, err := resultsIterator.Next()
-
-		if err != nil {
-			return nil, err
-		}
-
-		datahash := new(DataHash)
-		_ = json.Unmarshal(queryResponse.Value, datahash)
-
-		queryResult := DataHashQueryResult{Key: queryResponse.Key, Record: datahash}
-		results = append(results, queryResult)
+		return shim.Error("Failed to get seller:" + err.Error())
+	} else if sellerAsBytes == nil {
+		return shim.Error("Seller does not exist")
 	}
 
-	return results, nil
-}*/
-
-/*
-func (s *DataHashContract) ChangeDataHashAccount(ctx dhc.TransactionContextInterface, datahashNumber string, newAccount string) error {
-	datahash, err := s.QueryDataHash(ctx, datahashNumber)
-
+	seller := Account{}
+	err = json.Unmarshal(sellerAsBytes, &seller)
 	if err != nil {
-		return err
+		return shim.Error(err.Error())
 	}
 
-	datahash.Account = newAccount
+	buyerAsBytes, err := APIstub.GetState(args[2])
+	if err != nil {
+		return shim.Error("Failed to get buyer:" + err.Error())
+	} else if buyerAsBytes == nil {
+		return shim.Error("Buyer does not exist")
+	}
 
-	datahashAsBytes, _ := json.Marshal(datahash)
+	buyer := Account{}
+	err = json.Unmarshal(buyerAsBytes, &buyer)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
 
-	return ctx.GetStub().PutState(datahashNumber, datahashAsBytes)
-}*/
+	if(buyer.Balance < hash.Price){
+		return shim.Error("Buyer does not have sufficient balance.")
+	}
 
+	newBuyerBalance := buyer.Balance - hash.Price
+	newSellerBalance := seller.Balance + hash.Price
+
+	ChangeAccountBalance(APIstub, args[1], newSellerBalance)
+	ChangeAccountBalance(APIstub, args[2], newBuyerBalance)
+
+	ChangeDataHashOwner(APIstub, args)
+	return PutTransaction(APIstub, args)
+}
 
 func main() {
 
-	chaincode, err := contractapi.NewChaincode(new(DataMarketplaceContract))
-
+	// Create a new Smart Contract
+	err := shim.Start(new(DataMarketplaceContract))
 	if err != nil {
-		fmt.Printf("Error create data marketplace chaincode: %s", err.Error())
-		return
-	}
-
-	if err := chaincode.Start(); err != nil {
-		fmt.Printf("Error starting data marketplace chaincode: %s", err.Error())
+		fmt.Printf("Error creating new Smart Contract: %s", err)
 	}
 }

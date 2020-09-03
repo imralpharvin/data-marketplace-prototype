@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Data Marketplace</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Data Marketplace">
+  <meta name="keywords" content="Data Marketplace">
+  <meta name="author" content="Ralph Arvin De Castro">
+  <!-- Load jquery, bootstrap -->
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+    crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" type="text/css" href="/style.css">
+  <link href="data:image/x-icon;base64,AAABAAEAEBAQAAAAAAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAD/xjgAAAAAAN6sMQDJmygA////AEVFRQCUdisAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARERERERERERVVVVVVVVVVFRERERERERUVDMzMzMzNFRUNDQ0NDQ0VFQzMzMzMzRUVDQ0NDQ0NFRUMzMzMzM0VFRERDQ0NDRUVEREMzMzNFRUREREREREVFAAAAAAAABUUiIiIiIiIlRWZmZmZmZmVFVVVVVVVVVUEREREREREREAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//wAA"
+    rel="icon" type="image/x-icon" />
+  <!-- Custom CSS End -->
+</head>
+
+<body>
+  <br>
+  <br>
+  <div class="text-right mb-3">
+    <button id="logOut" type="button" class="btn">Log Out</button>
+  </div>
+  <center>
+  <br>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" id = "datamarketplacePage">Data Marketplace</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div class="navbar-nav">
+      <a class="nav-item nav-link" id ="profilePage">Profile</a>
+      <a class="nav-item nav-link" id ="datahashesPage">Datahashes</a>
+      <a class="nav-item nav-link active"  id = "transactionsPage">Transactions<span class="sr-only">(current)</span></a>
+
+    </div>
+  </div>
+  </nav>
+
+  <br>
+  <b>Username:</b><div id ="usernameInfo"></div> <br>
+
+  <div id="transactionsSellerCard" class="card">
+    <div class="card-header"> Sell History </div>
+    <div class="card-body">
+      <center><div id="noSellerTransactions"></div>
+
+      <div id = "tableContainer1" class="anyTable">
+        <div class="row justify-content-center">
+          <div class="col-auto">
+          <table id="transactionsSellerTable" class="table table-sm table-hover table-striped table-responsive" width='90%'></table>
+          </div>
+        </div>
+      </div></center>
+    </div>
+  </div>
+
+  <br>
+
+  <div id="transactionsBuyerCard" class="card">
+    <div class="card-header"> Buy History </div>
+    <div class="card-body">
+      <center><div id="noBuyerTransactions"></div>
+
+      <div id = "tableContainer2" class="anyTable">
+        <div class="row justify-content-center">
+          <div class="col-auto">
+          <table id="transactionsBuyerTable" class="table table-sm table-hover table-striped table-responsive" width='90%'></table>
+          </div>
+        </div>
+      </div></center>
+    </div>
+  </div>
+
+
+  <br>
+  <div id="verificationCard" class="card">
+    <div class="card-header"> Transaction Verification </div>
+    <div class="card-body">
+      Please enter hash of the transaction in the textbox below and choose file to verify:
+      <center><div id="hashVerification"></div></center>
+      <div class="input-group input-group-sm mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text" id="inputGroup-sizing-sm">Enter Hash</span>
+        </div>
+        <input type="text" id="hashValue" class="form-control" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+      </div>
+      <center><div id="hashText"></div>
+      <form id='uploadForm' method='post' encType="multipart/form-data" name="fileinfo">
+        <input type='file' id="realButton" hidden=hidden value='Upload File' name='uploadFile' />
+        <button id="uploadButton" type="button" class="btn">Choose File</button>
+        <span id="customText"> No file chosen. </span>
+        <input type='submit' id="realSubmit" class="btn" value='Verify' />
+      </form>
+    </div>
+  </div>
+
+  </center>
+
+  <!-- Leave me at the bottom of body -->
+  <script src="/transaction.js"></script>
+</body>
+
+</html>

@@ -26,8 +26,8 @@ rm chaincode/data-marketplace/log.txt
 rm -rf ./chaincode/data-marketplace/vendor
 
 #delete api modules
-rm -rf api/node_modules
-rm -rf api/wallet/*
+rm -rf app/users/*
+rm -rf app/wallet/*
 
 removeUnwantedImages() {
   DOCKER_IMAGE_IDS=$(docker images | awk '($1 ~ /dev-peer.*/) {print $3}')
